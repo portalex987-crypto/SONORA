@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>SONORA — Music, your way.</title>
+<style>
+:root{
+ --bg:#080a0d;--surface:#101319;--surface2:#171b22;--surface3:#1d222b;
+ --text:#f7f8fb;--muted:#858c99;--line:rgba(255,255,255,.075);
+ --accent:#c2ff43;--accentText:#0b1004;--shadow:0 20px 70px rgba(0,0,0,.35)
+}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden}
+body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--text)}
+button,input{font:inherit}button{cursor:pointer}
+.app{height:100vh;display:grid;grid-template-columns:258px 1fr;grid-template-rows:1fr 96px}
+.sidebar{grid-row:1;padding:22px 16px;border-right:1px solid var(--line);background:color-mix(in srgb,var(--bg) 91%,transparent);display:flex;flex-direction:column;overflow:hidden}
+.logo{display:flex;align-items:center;gap:11px;margin:4px 10px 31px}
+.logoMark{width:35px;height:35px;border-radius:12px;background:var(--accent);color:var(--accentText);display:grid;place-items:center;font-weight:1000;font-size:17px;transform:rotate(-7deg);box-shadow:0 0 25px rgba(194,255,67,.13)}
+.logoText{font-size:20px;font-weight:900;letter-spacing:.13em}.logoText i{font-style:normal;color:var(--muted);font-weight:400}
+.navLabel{font-size:9px;color:#626975;letter-spacing:.2em;font-weight:900;padding:0 11px 9px}
+.nav{display:flex;flex-direction:column;gap:3px}
+.nav button{height:43px;border:0;background:transparent;color:var(--muted);border-radius:11px;padding:0 12px;display:flex;align-items:center;gap:13px;text-align:left;transition:.18s}
+.nav button:hover{background:var(--surface2);color:var(--text)}
+.nav button.active{background:var(--surface2);color:var(--text);box-shadow:inset 3px 0 var(--accent)}
+.navIcon{width:19px;text-align:center}.active .navIcon{color:var(--accent)}
+.library{margin-top:28px;min-height:0;overflow:auto}.playlistItem{display:flex;align-items:center;gap:9px;padding:9px 11px;color:#7c838f;font-size:13px;border-radius:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.playlistItem:hover{background:var(--surface2);color:var(--text)}.playlistDot{width:8px;height:8px;border-radius:3px;background:var(--surface3);flex:none}
+.account{margin-top:auto;border:1px solid var(--line);background:var(--surface);border-radius:14px;padding:10px;display:flex;align-items:center;gap:10px}
+.avatar{width:35px;height:35px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#6bdcff);display:grid;place-items:center;color:#0b1004;font-weight:950;flex:none}
+.account strong{display:block;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.account small{display:block;color:var(--muted);font-size:10px;margin-top:3px}
+
+.main{min-width:0;overflow:auto;padding-bottom:115px;background:radial-gradient(circle at 78% 5%,rgba(194,255,67,.055),transparent 25%)}
+.topbar{height:72px;position:sticky;top:0;z-index:10;padding:0 31px;display:flex;align-items:center;justify-content:space-between;background:color-mix(in srgb,var(--bg) 82%,transparent);backdrop-filter:blur(18px);border-bottom:1px solid var(--line)}
+.searchWrap{position:relative;width:min(410px,45vw)}.searchIcon{position:absolute;left:15px;top:11px;color:#6e7581}.search{width:100%;height:40px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--text);outline:none;padding:0 15px 0 41px}.search:focus{border-color:rgba(194,255,67,.42)}
+.headerActions{display:flex;align-items:center;gap:9px}.roundBtn{width:39px;height:39px;border:1px solid var(--line);background:var(--surface);color:#a4aab5;border-radius:11px}.roundBtn:hover{color:var(--text);background:var(--surface2)}
+.connectBtn{height:40px;border:1px solid rgba(194,255,67,.3);background:rgba(194,255,67,.09);color:var(--accent);border-radius:11px;padding:0 14px;font-weight:800}.connectBtn:hover{background:rgba(194,255,67,.15)}
+.content{padding:24px 31px 50px;max-width:1450px;margin:auto}.view{display:none}.view.active{display:block}
+.hero{display:grid;grid-template-columns:1.3fr .7fr;gap:17px;margin-bottom:27px}
+.heroMain{min-height:335px;border:1px solid var(--line);border-radius:24px;padding:33px;display:flex;flex-direction:column;justify-content:flex-end;position:relative;overflow:hidden;background:linear-gradient(125deg,var(--surface2),#0e1116)}
+.heroMain:before{content:"";position:absolute;width:380px;height:380px;border-radius:50%;right:-110px;top:-130px;background:radial-gradient(circle,#c2ff4350,transparent 62%);filter:blur(3px)}
+.heroMain:after{content:"";position:absolute;width:190px;height:190px;border-radius:50%;right:100px;top:50px;border:1px solid rgba(194,255,67,.12);box-shadow:0 0 0 30px rgba(194,255,67,.025),0 0 0 65px rgba(194,255,67,.018)}
+.heroContent{position:relative;z-index:1}.eyebrow{color:var(--accent);font-size:9px;letter-spacing:.22em;font-weight:950}.hero h1{font-size:clamp(38px,4.4vw,65px);line-height:.94;letter-spacing:-.065em;margin:9px 0 13px}.hero p{color:#9299a5;line-height:1.55;max-width:520px;margin:0}.heroButtons{display:flex;gap:9px;margin-top:22px}.primary{border:0;background:var(--accent);color:var(--accentText);border-radius:11px;padding:12px 17px;font-weight:900}.secondary{border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--text);border-radius:11px;padding:12px 17px;font-weight:700}
+.stats{border:1px solid var(--line);border-radius:24px;background:var(--surface);padding:22px;display:flex;flex-direction:column;justify-content:space-between}.statsTop{display:flex;justify-content:space-between}.live{font-size:9px;letter-spacing:.16em;color:#69707c;font-weight:900}.pulse{width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 14px var(--accent)}.bigNumber{font-size:62px;font-weight:900;letter-spacing:-.07em;margin-top:25px}.stats p{color:var(--muted);font-size:12px;line-height:1.5;margin:0}.miniBars{display:flex;align-items:end;height:70px;gap:6px}.miniBars span{flex:1;border-radius:4px 4px 1px 1px;background:linear-gradient(var(--accent),rgba(194,255,67,.13));opacity:.8}.miniBars span:nth-child(1){height:30%}.miniBars span:nth-child(2){height:52%}.miniBars span:nth-child(3){height:41%}.miniBars span:nth-child(4){height:72%}.miniBars span:nth-child(5){height:48%}.miniBars span:nth-child(6){height:85%}.miniBars span:nth-child(7){height:65%}.miniBars span:nth-child(8){height:95%}
+
+.sectionTitle{display:flex;justify-content:space-between;align-items:end;margin:26px 0 13px}.sectionTitle h2{font-size:18px;margin:0;letter-spacing:-.025em}.sectionTitle span{font-size:11px;color:var(--muted)}
+.cards{display:grid;grid-template-columns:repeat(5,minmax(120px,1fr));gap:13px}.card{border:1px solid var(--line);background:var(--surface);border-radius:15px;padding:12px;transition:.18s;min-width:0}.card:hover{transform:translateY(-3px);background:var(--surface2);border-color:rgba(255,255,255,.13)}.art{aspect-ratio:1;border-radius:10px;overflow:hidden;margin-bottom:11px;position:relative}.art:before{content:"";position:absolute;inset:20%;border:1px solid rgba(255,255,255,.3);border-radius:50%}.art.a{background:linear-gradient(145deg,#c2ff43,#163c2b)}.art.b{background:linear-gradient(145deg,#63d9ff,#252a80)}.art.c{background:linear-gradient(145deg,#ff6680,#451c43)}.art.d{background:linear-gradient(145deg,#d9d1ff,#2a205c)}.art.e{background:linear-gradient(145deg,#ffbf5a,#533019)}.card strong{display:block;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.card small{display:block;color:var(--muted);font-size:11px;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+.list{border:1px solid var(--line);border-radius:15px;overflow:hidden;background:var(--surface)}.listRow{display:grid;grid-template-columns:42px 1fr 180px 60px;align-items:center;gap:10px;padding:12px 15px;border-bottom:1px solid rgba(255,255,255,.045)}.listRow:last-child{border:0}.listRow:hover{background:rgba(255,255,255,.035)}.num{color:#626a76;font-size:11px;text-align:center}.song strong{font-size:13px}.song small{display:block;color:var(--muted);font-size:11px;margin-top:3px}.album,.duration{font-size:11px;color:var(--muted)}.duration{text-align:right}
+.playlistGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:15px}.playlistCard{min-height:190px;border:1px solid var(--line);border-radius:17px;padding:18px;display:flex;flex-direction:column;justify-content:end;position:relative;overflow:hidden;background:var(--surface)}.playlistCard:hover{transform:translateY(-2px);background:var(--surface2)}.playlistColor{position:absolute;width:180px;height:180px;border-radius:50%;right:-45px;top:-55px;opacity:.7;filter:blur(1px)}.pc1{background:#c2ff43}.pc2{background:#70d6ff}.pc3{background:#ff6680}.pc4{background:#a98cff}.playlistCard strong{position:relative;font-size:17px}.playlistCard small{position:relative;color:#8a919d;margin-top:5px}
+
+.settingsShell{max-width:850px}.settingsHeader{margin-bottom:25px}.settingsHeader h1{font-size:40px;letter-spacing:-.05em;margin:0 0 7px}.settingsHeader p{color:var(--muted);margin:0}.settingsSection{border:1px solid var(--line);background:var(--surface);border-radius:17px;margin-bottom:14px;overflow:hidden}.settingsSection h3{font-size:13px;margin:0;padding:17px 19px;border-bottom:1px solid var(--line)}.settingRow{min-height:65px;padding:13px 19px;display:flex;align-items:center;justify-content:space-between;gap:20px;border-bottom:1px solid rgba(255,255,255,.045)}.settingRow:last-child{border:0}.settingText strong{display:block;font-size:13px}.settingText span{display:block;color:var(--muted);font-size:11px;margin-top:4px}.themeButtons{display:flex;gap:7px}.themeBtn{border:1px solid var(--line);background:var(--surface2);color:var(--muted);padding:8px 12px;border-radius:9px;font-size:11px}.themeBtn.selected{border-color:var(--accent);color:var(--accent);background:rgba(194,255,67,.07)}
+.locked{opacity:.45;filter:grayscale(.2);position:relative}.lockBadge{font-size:10px;color:#777;display:flex;align-items:center;gap:6px}
+
+.player{grid-column:1/3;grid-row:2;z-index:30;border-top:1px solid var(--line);background:color-mix(in srgb,var(--surface) 92%,transparent);backdrop-filter:blur(22px);display:grid;grid-template-columns:1fr 1.5fr 1fr;align-items:center;padding:0 25px}.now{display:flex;align-items:center;gap:12px;min-width:0}.nowArt{width:56px;height:56px;border-radius:10px;background:linear-gradient(135deg,#c2ff43,#153c2a);display:grid;place-items:center;color:#10150a;font-size:20px}.nowInfo{min-width:0}.nowInfo strong,.nowInfo span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.nowInfo span{color:var(--muted);font-size:11px;margin-top:3px}.heart{background:0;border:0;color:#777;font-size:18px}.controls{display:flex;flex-direction:column;align-items:center;gap:4px}.buttons{display:flex;align-items:center;gap:18px}.ctrl{background:none;border:0;color:#8b929e;font-size:15px}.ctrl:hover{color:var(--text)}.playBtn{width:36px;height:36px;border-radius:50%;border:0;background:var(--text);color:var(--bg);font-weight:900}.progress{width:min(550px,90%);display:flex;align-items:center;gap:8px}.progress input{height:3px}.progress span{font-size:9px;color:#626a75}.playerTools{display:flex;justify-content:flex-end;align-items:center;gap:12px;color:#7e8591}.playerTools button{border:0;background:none;color:inherit}.volume{width:95px}
+
+.modal{display:none;position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.7);backdrop-filter:blur(9px);place-items:center}.modal.open{display:grid}.modalBox{width:min(470px,calc(100% - 30px));background:var(--surface2);border:1px solid var(--line);border-radius:22px;padding:27px;box-shadow:var(--shadow)}.modalClose{float:right;border:0;background:var(--surface3);color:#aaa;width:32px;height:32px;border-radius:50%}.modalBox h2{margin:0 0 8px;font-size:26px}.modalBox p{color:var(--muted);font-size:13px;line-height:1.55}.loginBtn{width:100%;border:0;border-radius:11px;padding:13px;background:var(--accent);color:var(--accentText);font-weight:900;margin-top:10px}.modalNote{margin-top:14px;padding:12px;background:var(--bg);border-radius:10px;color:#6e7581;font-size:10px;line-height:1.55}
+
+.toast{position:fixed;bottom:115px;right:25px;background:var(--surface2);border:1px solid var(--line);padding:12px 15px;border-radius:11px;font-size:12px;opacity:0;transform:translateY(8px);transition:.2s;z-index:200}.toast.show{opacity:1;transform:none}
+
+@media(max-width:1050px){.cards{grid-template-columns:repeat(3,1fr)}.playlistGrid{grid-template-columns:repeat(2,1fr)}.hero{grid-template-columns:1fr}.stats{min-height:180px}.miniBars{height:45px}}
+@media(max-width:780px){.app{grid-template-columns:76px 1fr}.sidebar{padding:20px 8px}.logo{justify-content:center;margin-bottom:28px}.logoText,.navLabel,.playlistItem,.accountText{display:none}.nav button{justify-content:center}.account{justify-content:center}.topbar{padding:0 16px}.content{padding:20px 16px}.player{grid-template-columns:1fr 1.2fr}.playerTools{display:none}.cards{grid-template-columns:repeat(2,1fr)}.listRow{grid-template-columns:30px 1fr 52px}.album{display:none}}
+@media(max-width:530px){.searchWrap{width:150px}.connectBtn{font-size:10px;padding:0 9px}.heroMain{min-height:350px;padding:23px}.hero h1{font-size:38px}.playlistGrid{grid-template-columns:1fr}.cards{gap:9px}.card{padding:9px}.player{padding:0 9px}.nowArt{width:46px;height:46px}.nowInfo span,.heart{display:none}}
+</style>
+</head>
+<body>
+<div class="app">
+
+<aside class="sidebar">
+  <div class="logo"><div class="logoMark">S</div><div class="logoText">SONORA<i>/</i></div></div>
+
+  <div class="navLabel">DISCOVER</div>
+  <nav class="nav">
+    <button class="active" onclick="showView('home',this)"><span class="navIcon">⌂</span>Home</button>
+    <button onclick="showView('searchView',this)"><span class="navIcon">⌕</span>Search</button>
+    <button onclick="showView('libraryView',this)"><span class="navIcon">◫</span>Your Library</button>
+  </nav>
+
+  <div class="library">
+    <div class="navLabel">YOUR PLAYLISTS</div>
+    <div class="playlistItem"><span class="playlistDot"></span>Liked Songs</div>
+    <div class="playlistItem"><span class="playlistDot"></span>Morning Run</div>
+    <div class="playlistItem"><span class="playlistDot"></span>Late Night</div>
+    <div class="playlistItem"><span class="playlistDot"></span>Focus Mode</div>
+    <div class="playlistItem"><span class="playlistDot"></span>Favorites</div>
+  </div>
+
+  <div class="account">
+    <div class="avatar" id="avatar">?</div>
+    <div class="accountText"><strong id="accountName">Not connected</strong><small id="accountStatus">Spotify required</small></div>
+  </div>
+</aside>
+
+<main class="main">
+<header class="topbar">
+  <div class="searchWrap"><span class="searchIcon">⌕</span><input class="search" placeholder="Search anything..." onkeydown="searchKey(event)"></div>
+  <div class="headerActions"><button class="roundBtn" onclick="showView('settingsView',null)">⚙</button><button class="connectBtn" onclick="openConnect()">Connect Spotify</button></div>
+</header>
+
+<div class="content">
+
+<section id="home" class="view active">
+  <div class="hero">
+    <div class="heroMain">
+      <div class="heroContent">
+        <div class="eyebrow">WELCOME TO SONORA</div>
+        <h1>Your music.<br>Your space.</h1>
+        <p>A clean, personal player for your Spotify world. Connect your account and bring your playlists, saved tracks, search and playback into one place.</p>
+        <div class="heroButtons"><button class="primary" onclick="openConnect()">Connect & explore</button><button class="secondary" onclick="showView('libraryView')">Browse library</button></div>
+      </div>
+    </div>
+    <div class="stats">
+      <div class="statsTop"><span class="live">LISTENING ACTIVITY</span><span class="pulse"></span></div>
+      <div><div class="bigNumber">∞</div><p>Your library, available when you connect Spotify Premium.</p></div>
+      <div class="miniBars"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+    </div>
+  </div>
+
+  <div class="sectionTitle"><h2>Quick picks</h2><span>Built into SONORA</span></div>
+  <div class="cards">
+    <div class="card" onclick="selectDemo('Midnight Motion','SONORA Radio')"><div class="art a"></div><strong>Midnight Motion</strong><small>SONORA Radio</small></div>
+    <div class="card" onclick="selectDemo('Blue Hour','SONORA Radio')"><div class="art b"></div><strong>Blue Hour</strong><small>SONORA Radio</small></div>
+    <div class="card" onclick="selectDemo('Afterglow','SONORA Radio')"><div class="art c"></div><strong>Afterglow</strong><small>SONORA Radio</small></div>
+    <div class="card" onclick="selectDemo('Cloud Nine','SONORA Radio')"><div class="art d"></div><strong>Cloud Nine</strong><small>SONORA Radio</small></div>
+    <div class="card" onclick="selectDemo('Golden Hour','SONORA Radio')"><div class="art e"></div><strong>Golden Hour</strong><small>SONORA Radio</small></div>
+  </div>
+
+  <div class="sectionTitle"><h2>Recently played</h2><span>Your Spotify history appears here after connection</span></div>
+  <div class="list">
+    <div class="listRow"><div class="num">01</div><div class="song"><strong>Connect Spotify to populate this list</strong><small>Your recently played tracks will appear here</small></div><div class="album">Spotify</div><div class="duration">—</div></div>
+    <div class="listRow"><div class="num">02</div><div class="song"><strong>Search your entire library</strong><small>Artists, albums and tracks</small></div><div class="album">SONORA</div><div class="duration">—</div></div>
+  </div>
+</section>
+
+<section id="searchView" class="view">
+  <div class="sectionTitle"><h2>Search</h2><span>Find music across your Spotify account</span></div>
+  <div class="heroMain" style="min-height:180px;margin-bottom:20px"><div class="heroContent"><div class="eyebrow">SEARCH</div><h1 style="font-size:40px">Find something.</h1><p>Connect Spotify, then use the search bar above to find tracks, albums and artists.</p></div></div>
+  <div class="list" id="searchResults"><div class="listRow"><div class="num">⌕</div><div class="song"><strong>Nothing searched yet</strong><small>Results will appear here</small></div></div></div>
+</section>
+
+<section id="libraryView" class="view">
+  <div class="sectionTitle"><h2>Your Library</h2><span>Spotify playlists</span></div>
+  <div class="playlistGrid">
+    <div class="playlistCard"><div class="playlistColor pc1"></div><strong>Liked Songs</strong><small>Connect to load your saved tracks</small></div>
+    <div class="playlistCard"><div class="playlistColor pc2"></div><strong>Morning Run</strong><small>Spotify playlist</small></div>
+    <div class="playlistCard"><div class="playlistColor pc3"></div><strong>Late Night</strong><small>Spotify playlist</small></div>
+    <div class="playlistCard"><div class="playlistColor pc4"></div><strong>Focus Mode</strong><small>Spotify playlist</small></div>
+  </div>
+  <div class="sectionTitle"><h2>Saved tracks</h2><span>Available after connection</span></div>
+  <div class="list"><div class="listRow"><div class="num">♪</div><div class="song"><strong>Your saved Spotify tracks will appear here</strong><small>Powered by Spotify Web API</small></div><div class="album">—</div><div class="duration">—</div></div></div>
+</section>
+
+<section id="settingsView" class="view">
+  <div class="settingsShell">
+    <div class="settingsHeader"><h1>Settings</h1><p>Make SONORA feel like yours.</p></div>
+
+    <div class="settingsSection">
+      <h3>Appearance</h3>
+      <div class="settingRow">
+        <div class="settingText"><strong>Theme</strong><span>Light and dark themes are available to signed-in users.</span></div>
+        <div class="themeButtons">
+          <button class="themeBtn selected" id="darkTheme" onclick="setTheme('dark')">Dark</button>
+          <button class="themeBtn" id="lightTheme" onclick="setTheme('light')">White</button>
+        </div>
+      </div>
+      <div class="settingRow locked" id="accentRow">
+        <div class="settingText"><strong>Accent color</strong><span>Personalize SONORA's interface.</span></div>
+        <span class="lockBadge">🔒 Sign in</span>
+      </div>
+    </div>
+
+    <div class="settingsSection">
+      <h3>Account</h3>
+      <div class="settingRow"><div class="settingText"><strong>Spotify account</strong><span id="settingsAccount">Not connected</span></div><button class="connectBtn" onclick="openConnect()">Connect</button></div>
+      <div class="settingRow"><div class="settingText"><strong>Playback</strong><span>Spotify Premium is required for SONORA browser playback.</span></div><span style="font-size:11px;color:#777">Premium</span></div>
+    </div>
+
+    <div class="settingsSection">
+      <h3>About</h3>
+      <div class="settingRow"><div class="settingText"><strong>SONORA</strong><span>Personal music interface · v1.0</span></div><span style="font-size:11px;color:#777">Web</span></div>
+    </div>
+  </div>
+</section>
+
+</div>
+</main>
+
+<footer class="player">
+  <div class="now"><div class="nowArt">♫</div><div class="nowInfo"><strong id="nowTitle">Nothing playing</strong><span id="nowArtist">Connect Spotify to begin</span></div><button class="heart">♡</button></div>
+  <div class="controls">
+    <div class="buttons"><button class="ctrl">↶</button><button class="ctrl">◀</button><button class="playBtn" id="playBtn" onclick="togglePlay()">▶</button><button class="ctrl">▶</button><button class="ctrl">↷</button></div>
+    <div class="progress"><span>0:00</span><input type="range" min="0" max="100" value="0"><span>0:00</span></div>
+  </div>
+  <div class="playerTools"><button>♬</button><button>▣</button><span>🔊</span><input class="volume" type="range" min="0" max="100" value="70"></div>
+</footer>
+</div>
+
+<div class="modal" id="connectModal">
+  <div class="modalBox">
+    <button class="modalClose" onclick="closeConnect()">×</button>
+    <h2>Connect Spotify</h2>
+    <p>Sign in with Spotify to unlock your playlists, saved tracks, search, account information, and Premium browser playback.</p>
+    <button class="loginBtn" onclick="startSpotifyLogin()">Continue with Spotify</button>
+    <div class="modalNote">The button is wired as the front-end entry point for Spotify OAuth with PKCE. Put your Client ID and redirect URI into the configuration in <b>app.js</b>; never put your Spotify Client Secret in browser code.</div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+/*
+  SONORA FRONT-END
+  ----------------
+  This file is intentionally ready for Spotify OAuth + Web Playback SDK.
+
+  REQUIRED BACK-END / CONFIG:
+    const SPOTIFY_CLIENT_ID = "YOUR_CLIENT_ID";
+    const REDIRECT_URI = "https://YOUR_DOMAIN/callback";
+
+  Use Spotify Authorization Code with PKCE.
+  After authentication, app.js should store the access token in memory
+  (or a secure session strategy) and use the Spotify Web API + Web Playback SDK.
+
+  Suggested scopes:
+    streaming
+    user-read-email
+    user-read-private
+    user-read-playback-state
+    user-modify-playback-state
+    user-read-currently-playing
+    playlist-read-private
+    playlist-read-collaborative
+    user-library-read
+    user-read-recently-played
+*/
+
+let signedIn = false;
+let playing = false;
+
+function showView(id, btn){
+  document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
+  const target=document.getElementById(id);
+  if(target) target.classList.add("active");
+  document.querySelectorAll(".nav button").forEach(b=>b.classList.remove("active"));
+  if(btn) btn.classList.add("active");
+}
+
+function openConnect(){document.getElementById("connectModal").classList.add("open")}
+function closeConnect(){document.getElementById("connectModal").classList.remove("open")}
+
+function startSpotifyLogin(){
+  /*
+    Replace this function with the PKCE authorization redirect.
+    Example flow:
+      1. Generate code_verifier
+      2. Create SHA-256 code_challenge
+      3. Redirect to accounts.spotify.com/authorize
+      4. Receive ?code=... at REDIRECT_URI
+      5. Exchange code for access_token
+      6. Initialize Spotify.Player
+  */
+  toast("Spotify OAuth goes here — add your Client ID and redirect URI first.");
+}
+
+function setTheme(theme){
+  if(!signedIn){
+    toast("Sign in with Spotify to change the theme.");
+    return;
+  }
+  if(theme==="light"){
+    document.documentElement.style.setProperty("--bg","#f4f6f8");
+    document.documentElement.style.setProperty("--surface","#ffffff");
+    document.documentElement.style.setProperty("--surface2","#eef1f4");
+    document.documentElement.style.setProperty("--surface3","#e5e9ee");
+    document.documentElement.style.setProperty("--text","#11141a");
+    document.documentElement.style.setProperty("--muted","#68717e");
+    document.documentElement.style.setProperty("--line","rgba(10,15,20,.09)");
+    document.documentElement.style.setProperty("--accent","#79ad00");
+    document.documentElement.style.setProperty("--accentText","#ffffff");
+    document.getElementById("lightTheme").classList.add("selected");
+    document.getElementById("darkTheme").classList.remove("selected");
+  }else{
+    document.documentElement.style.setProperty("--bg","#080a0d");
+    document.documentElement.style.setProperty("--surface","#101319");
+    document.documentElement.style.setProperty("--surface2","#171b22");
+    document.documentElement.style.setProperty("--surface3","#1d222b");
+    document.documentElement.style.setProperty("--text","#f7f8fb");
+    document.documentElement.style.setProperty("--muted","#858c99");
+    document.documentElement.style.setProperty("--line","rgba(255,255,255,.075)");
+    document.documentElement.style.setProperty("--accent","#c2ff43");
+    document.documentElement.style.setProperty("--accentText","#0b1004");
+    document.getElementById("darkTheme").classList.add("selected");
+    document.getElementById("lightTheme").classList.remove("selected");
+  }
+}
+
+function selectDemo(title,artist){
+  document.getElementById("nowTitle").textContent=title;
+  document.getElementById("nowArtist").textContent=artist;
+  playing=true;document.getElementById("playBtn").textContent="Ⅱ";
+  toast("Demo selected — Spotify playback will replace this once connected.");
+}
+function togglePlay(){
+  if(!signedIn){openConnect();return}
+  playing=!playing;document.getElementById("playBtn").textContent=playing?"Ⅱ":"▶";
+}
+function searchKey(e){
+  if(e.key==="Enter"){
+    showView("searchView");
+    toast("Search is ready to connect to the Spotify Web API.");
+  }
+}
+function toast(message){
+  const el=document.getElementById("toast");el.textContent=message;el.classList.add("show");
+  clearTimeout(window.toastTimer);window.toastTimer=setTimeout(()=>el.classList.remove("show"),3000);
+}
+</script>
+</body>
+</html>
