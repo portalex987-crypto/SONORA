@@ -345,7 +345,7 @@ async function exchangeCodeForToken(code, verifier){
   });
 
   const data=await response.json();
-  if(!response.ok) throw new Error(data.error_description || data.error || "Token exchange failed.");
+  if(!response.ok) throw new Error(data.error_description || data.error || "Token exchange failed (HTTP "+response.status+").");
 
   saveTokens(data);
   return data;
@@ -413,12 +413,12 @@ async function spotifyFetch(endpoint, options={}){
   }
 
   if(!response.ok){
-    let message="Spotify request failed.";
+    let message="Spotify request failed (HTTP "+response.status+").";
     try{
       const err=await response.json();
-      message=err.error?.message || message;
+      message=err.error?.message || err.message || err.error?.reason || message;
     }catch{}
-    throw new Error(message);
+    throw new Error(message+" [HTTP "+response.status+"]");
   }
 
   if(response.status===204) return null;
@@ -483,7 +483,12 @@ async function finishSpotifyConnection(){
   signedIn=true;
   closeConnect();
 
-  const profile=await spotifyFetch("/me");
+  let profile;
+  try{
+    profile=await spotifyFetch("/me");
+  }catch(err){
+    throw new Error("Spotify connected, but SONORA could not read your profile: "+err.message);
+  }
   const displayName=profile.display_name || profile.id || "Spotify user";
   const initial=(displayName.trim()[0]||"S").toUpperCase();
 
